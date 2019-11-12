@@ -23,13 +23,19 @@ app.get('/api/users', (req, res) => {
   if(Object.values(req.query).length < 1) {
     user.getAllUsers()
       .then(data => res.status(200).json(data))
-      .catch(error => console.log(error));
+      .catch(error => {
+        console.log(error);
+        res.status(403).send(new Error(error))
+      });
   } else {
     const { email, password } = req.query;
     if(email && password) {
       user.login(email, password)
         .then(({email, userID}) => res.status(200).json({email,userId:userID}))
-        .catch(error => res.status(403).send(new Error(error)));
+        .catch(error => {
+          console.log(error);
+          res.status(403).send(new Error(error))
+        });
     }
   }
 });
@@ -43,7 +49,8 @@ app.post('/api/users', (req, res) => {
   user.signup(email, password)
     .then(({email, userID}) => res.status(200).json({email,userId:userID}))
     .catch(error => {
-      res.status(400).send(new Error(error));
+      console.log(error);
+      res.status(403).send(new Error(error))
     });
 });
 
@@ -55,11 +62,17 @@ app.get('/api/questions', (req, res) => {
   if(!email) {
     q.getAllQuestions()
       .then(questions => res.status(200).json(questions))
-      .catch(error => res.status(400).send(new Error(error)))
-  } else {
+      .catch(error => {
+        console.log(error);
+        res.status(403).send(new Error(error))
+      });  
+    } else {
     q.getUserQuestions(email)
       .then(questions => res.status(200).json(questions))
-      .catch(error => res.status(400).send(new Error(error)))
+      .catch(error => {
+        console.log(error);
+        res.status(403).send(new Error(error))
+      });
   }
 });
 
@@ -75,7 +88,10 @@ app.post('/api/questions', (req, res) => {
       return q.getQuestion(question_id);
     })
     .then(questionData => res.status(200).json(questionData))
-    .catch(error => res.status(400).send(new Error(error)));
+    .catch(error => {
+      console.log(error);
+      res.status(403).send(new Error(error))
+    });
 });
 
 // --------------------------------------------------------------- ANSWER ENDPOINTS
@@ -86,7 +102,10 @@ app.get('/api/answers', async (req, res) => {
   if(!questionId) {
     a.getAllAnswers()
       .then(answers => res.status(200).json(answers))
-      .catch(error => res.status(400).send(new Error(error)))
+      .catch(error => {
+        console.log(error);
+        res.status(403).send(new Error(error))
+      });
   } else {
     try {
       const question = await q.getQuestion(questionId);
@@ -94,6 +113,7 @@ app.get('/api/answers', async (req, res) => {
 
       res.status(200).json({question, answers});
     } catch (error) {
+      console.log(error);
       res.status(400).send(new Error(error));
     }
   }
@@ -111,5 +131,8 @@ app.post('/api/answers', (req, res) => {
     .then(answerData => {
       res.status(200).json(answerData)
     })
-    .catch(error => res.status(400).send(new Error(error)));
+    .catch(error => {
+      console.log(error);
+      res.status(403).send(new Error(error))
+    });
 });
