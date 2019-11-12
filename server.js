@@ -29,7 +29,7 @@ app.get('/api/users', (req, res) => {
     if(email && password) {
       user.login(email, password)
         .then(({email, userID}) => res.status(200).json({email,userId:userID}))
-        .catch(error => res.status(403).send('Login Failed!'));
+        .catch(error => res.status(403).send(new Error(error)));
     }
   }
 });
@@ -43,7 +43,7 @@ app.post('/api/users', (req, res) => {
   user.signup(email, password)
     .then(({email, userID}) => res.status(200).json({email,userId:userID}))
     .catch(error => {
-      res.status(400).send('Signing up Failed!')
+      res.status(400).send(new Error(error));
     });
 });
 
